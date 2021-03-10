@@ -20,10 +20,10 @@ class Login(APIView):
 
 
 class RoleViewSet(APIView):
+    authentication_classes = []
 
     def get(self, request):
-        oaRoles = OARole.objects.filter()
-        serialize = OaRoleSerializer(oaRoles, many=True)
         page = CusPagination()
-        page.paginate_queryset(serialize.data, request)
-        return page.get_paginated_response(serialize.data)
+        query = page.cus_query(request, OARole, OaRoleSerializer)
+        page.paginate_queryset(query, request)
+        return page.get_paginated_response(page.page.object_list)
