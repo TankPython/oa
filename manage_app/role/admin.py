@@ -1,9 +1,6 @@
 from django.contrib import admin
-from .models import OARole
+from .models import OARole,OAUser,OAPermission
 
-
-class OARoleAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "desc", "ps_ids"]
-
-
-admin.site.register(OARole, OARoleAdmin)
+admin.site.register(OARole)
+admin.site.register(OAUser)
+admin.site.register(OAPermission)

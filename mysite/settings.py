@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'role.apps.RoleConfig',
     'common'
 ]
@@ -81,11 +82,26 @@ DATABASES = {
         'NAME': 'os_system',
         'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': 'hadoop103',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
         "init_command": "SET foreign_key_checks = 0;",
     }
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'common.utils.CusAuthentication',
+    ]
+}
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

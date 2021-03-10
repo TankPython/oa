@@ -4,6 +4,7 @@ from role import views
 
 urlpatterns = [
     path('roles/', views.RoleViewSet.as_view()),
+    path('login/', views.Login.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
