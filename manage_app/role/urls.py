@@ -3,8 +3,10 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from role import views
 
 urlpatterns = [
-    path('roles/', views.RoleViewSet.as_view()),
+    path('role/', views.RoleView.as_view()),
+    path('user/', views.UserView.as_view()),
     path('login/', views.Login.as_view()),
+    path('register/', views.Register.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

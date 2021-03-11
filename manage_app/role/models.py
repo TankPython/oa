@@ -6,10 +6,14 @@ from common.baseModel import BaseModel
 # Create your models here.
 class OAUser(BaseModel):
     name = models.CharField(verbose_name="名字", max_length=20)
-    password = models.CharField(verbose_name="密码", max_length=20)
+    password = models.CharField(verbose_name="密码", max_length=32)
     email = models.CharField(verbose_name="邮箱", max_length=100, blank=True)
     phone = models.CharField(verbose_name="电话", blank=True, max_length=15)
     role_id = models.IntegerField(verbose_name="角色id", blank=True, null=True)
+
+    def validate_pwd(self, password):
+        from common.utils import create_md5
+        return create_md5(password) == self.password
 
     class Meta:
         db_table = "oa_user"

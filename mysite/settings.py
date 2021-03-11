@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'os_system',
         'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': 'hadoop103',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
         "init_command": "SET foreign_key_checks = 0;",
     }
