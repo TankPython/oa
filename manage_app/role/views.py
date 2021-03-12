@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from django.http import JsonResponse, HttpResponse
 from rest_framework import permissions
-from .models import OARole, OAUser
+from .models import OARole, OAUser, OAPermission
 from .serializers import OaRoleSerializer, OaUserSerializer
 from common.utils import CusPagination, get_result, create_token
 from django.core.cache import cache
@@ -120,7 +120,7 @@ class UserView(APIView):
 
     def get(self, request):
         page = CusPagination()
-        return page.cus_query(request, OARole, OaRoleSerializer)
+        return page.cus_query(request, OAUser, OaUserSerializer)
 
     # 增加user
     def post(self, request):
@@ -169,4 +169,29 @@ class UserView(APIView):
             return JsonResponse(get_result("ParamsError"))
 
         # 请求成功
+        return JsonResponse(resp)
+
+
+class MenuView(APIView):
+    authentication_classes = []
+
+    def get(self, request):
+        resp = get_result()
+        base_ps_list = OAPermission.objects.filter(deleted=False, pid=0, level=0)
+        rest_list = []
+        for base_ps in base_ps_list:
+            rest_data = {}
+            rest_data["id"] = base_ps.id
+            rest_data["authName"] = base_ps.name
+            rest_data["path"] = base_ps.path
+            rest_data["children"] = []
+            ps_level2_list = OAPermission.objects.filter(deleted=False, pid=base_ps.id)
+            for ps_level2 in ps_level2_list:
+                rest_data["children"].append({
+                    "id": ps_level2.id,
+                    "authName": ps_level2.name,
+                    "path": ps_level2.path,
+                })
+            rest_list.append(rest_data)
+        resp.update({"data": rest_list})
         return JsonResponse(resp)
