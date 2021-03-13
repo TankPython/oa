@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'common.middleware.MD1',
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 APPEND_SLASH = True
@@ -93,6 +94,9 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'common.utils.CusAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'common.utils.CusPermission',
     ]
 }
 

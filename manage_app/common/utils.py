@@ -105,8 +105,23 @@ class CusAuthentication(authentication.BaseAuthentication):
 
 class CusPermission(BasePermission):
     def has_permission(self, request, view):
-        print("has permission")
-        print(request.user.id)
+        path = request.path
+        method = request.method
+        if path == "/api/menu/":
+            return True
+        from role.models import OAPermission, OARole
+        role_id = request.user.role_id
+        if not role_id:
+            return False
+        role = OARole.objects.filter(id=role_id).first()
+        ps_ids = role.ps_ids
+        if not ps_ids:
+            return False
+        ps_ids = ps_ids.split(",")
+        ps = OAPermission.objects.filter(path=path, method=method.lower()).first()
+        if str(ps.id) not in ps_ids:
+            return False
         return True
+
 
 print(create_md5("123456"))

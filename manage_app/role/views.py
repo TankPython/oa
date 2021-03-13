@@ -11,6 +11,7 @@ from .control import RoleControl
 
 class Login(APIView):
     authentication_classes = []
+    permission_classes = []
 
     def post(self, request):
         resp = get_result()
@@ -38,6 +39,7 @@ class Login(APIView):
 
 class Register(APIView):
     authentication_classes = []
+    permission_classes = []
 
     def post(self, request):
         resp = get_result()
@@ -187,25 +189,10 @@ class MenuView(APIView):
             return JsonResponse(resp)
 
         role = OARole.objects.get(id=user.role_id)
-        ps_ids = role.ps_ids.split(",")
-        ps_ids = [int(i) for i in ps_ids]
-        base_ps_list = OAPermission.objects.filter(deleted=False, pid=0, level=0).filter(id__in=ps_ids)
+        ps_ids = role.ps_ids
+        if not ps_ids:
+            resp.update({"data": rest_list})
+            return JsonResponse(resp)
 
-        for base_ps in base_ps_list:
-            rest_data = {}
-            rest_data["id"] = base_ps.id
-            rest_data["authName"] = base_ps.name
-            rest_data["path"] = base_ps.path
-            rest_data["pid"] = base_ps.pid
-            rest_data["children"] = []
-            ps_level2_list = OAPermission.objects.filter(deleted=False, pid=base_ps.id)
-            for ps_level2 in ps_level2_list:
-                rest_data["children"].append({
-                    "id": ps_level2.id,
-                    "authName": ps_level2.name,
-                    "path": ps_level2.path,
-                    "pid": ps_level2.pid,
-                })
-            rest_list.append(rest_data)
-        resp.update({"data": rest_list})
+        resp.update({"data": role.get_role_ps()})
         return JsonResponse(resp)
