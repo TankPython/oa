@@ -11,11 +11,6 @@ class OAUser(BaseModel):
     phone = models.CharField(verbose_name="电话", max_length=15, blank=True)
     role_id = models.IntegerField(verbose_name="角色id", blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        if self.password:
-            self.password = self.create_password()
-        return super(OAUser, self).save(*args, **kwargs)
-
     def validate_pwd(self, password):
         from common.utils import create_md5
         return create_md5(password) == self.password

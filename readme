@@ -1,0 +1,4 @@
+# 缓存表
+python manage.py createcachetable
+# 依赖
+pip freeze > requirements.txt

@@ -1,6 +1,5 @@
 from .models import OARole, OAUser, OAPermission
 from rest_framework import serializers
-from common.utils import create_md5
 
 
 class OaRoleSerializer(serializers.ModelSerializer):
@@ -43,15 +42,6 @@ class OaRoleSerializer(serializers.ModelSerializer):
 
 
 class OaUserSerializer(serializers.ModelSerializer):
-    # role = serializers.SerializerMethodField(read_only=True)
-    #
-    # def get_role(self, obj):
-    #     role = OARole.objects.filter(id=obj.role_id).first()
-    #     if role:
-    #         return role.name
-    #     else:
-    #         return ""
-
     class Meta:
         model = OAUser
         fields = ['id', 'name', 'email', 'password', 'phone', 'role_id']
@@ -59,15 +49,6 @@ class OaUserSerializer(serializers.ModelSerializer):
 
 
 class OaPermissionSerializer(serializers.ModelSerializer):
-    # parent_ps = serializers.SerializerMethodField()
-
-    # def get_parent_ps(self, obj):
-    #     parent_ps = OAPermission.objects.filter(id=obj.role_id).first()
-    #     if parent_ps:
-    #         return parent_ps.name
-    #     else:
-    #         return ""
-
     class Meta:
         model = OAPermission
         fields = ['id', 'name', 'method', 'pid', 'level', 'path']

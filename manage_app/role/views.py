@@ -3,9 +3,10 @@ from django.http import JsonResponse, HttpResponse
 from rest_framework import permissions
 from .models import OARole, OAUser, OAPermission
 from .serializers import OaRoleSerializer, OaUserSerializer
-from common.utils import CusPagination, get_result, create_token
+from common.utils import CusPagination, get_result, create_token, create_md5
 from django.core.cache import cache
 import traceback
+from .control import RoleControl
 
 
 class Login(APIView):
@@ -100,22 +101,13 @@ class RoleView(APIView):
 
     # 修改role
     def put(self, request):
-        resp = get_result()
-        try:
-            json_data = request.data
-            id = json_data.get("id")
-            role = OARole.objects.filter(deleted=False, id=id).first()
-            serialize = OaRoleSerializer(role, data=json_data, partial=True)
-            if serialize.is_valid():
-                serialize.save()
-            else:
-                return JsonResponse(get_result("ParamsError"))
-        except Exception as e:
-            print(traceback.format_exc())
-            return JsonResponse(get_result("ParamsError"))
-
-        # 请求成功
-        return JsonResponse(resp)
+        json_data = request.data
+        action = json_data.get("act")
+        roleControl = RoleControl(json_data)
+        if action == "delete_target_ps_to_role":
+            return roleControl.delete_target_ps_to_role()
+        else:
+            return roleControl.put_role()
 
 
 class UserView(APIView):
@@ -130,11 +122,12 @@ class UserView(APIView):
         resp = get_result()
         try:
             json_data = request.data
+            if json_data.get("password", ""):
+                json_data["password"] = create_md5(json_data["password"])
             serialize = OaUserSerializer(data=json_data)
             if serialize.is_valid():
                 serialize.save()
             else:
-
                 return JsonResponse(get_result("ParamsError"))
         except Exception as e:
             print(traceback.format_exc())
@@ -162,6 +155,8 @@ class UserView(APIView):
         resp = get_result()
         try:
             json_data = request.data
+            if json_data.get("password", ""):
+                json_data["password"] = create_md5(json_data["password"])
             id = json_data.get("id")
             user = OAUser.objects.filter(deleted=False, id=id).first()
             serialize = OaUserSerializer(instance=user, data=json_data, partial=True)
@@ -179,12 +174,19 @@ class UserView(APIView):
 
 
 class MenuView(APIView):
-    authentication_classes = []
-
     def get(self, request):
         resp = get_result()
-        base_ps_list = OAPermission.objects.filter(deleted=False, pid=0, level=0)
+        user = request.user
         rest_list = []
+        if not user.role_id:
+            resp.update({"data": rest_list})
+            return JsonResponse(resp)
+
+        role = OARole.objects.get(id=user.role_id)
+        ps_ids = role.ps_ids.split(",")
+        ps_ids = [int(i) for i in ps_ids]
+        base_ps_list = OAPermission.objects.filter(deleted=False, pid=0, level=0).filter(id__in=ps_ids)
+
         for base_ps in base_ps_list:
             rest_data = {}
             rest_data["id"] = base_ps.id
