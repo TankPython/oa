@@ -62,7 +62,6 @@ class Register(APIView):
 
 
 class RoleView(APIView):
-    authentication_classes = []
 
     def get(self, request):
         page = CusPagination()
@@ -111,11 +110,16 @@ class RoleView(APIView):
 
 
 class UserView(APIView):
-    authentication_classes = []
 
     def get(self, request):
-        page = CusPagination()
-        return page.cus_query(request, OAUser, OaUserSerializer)
+        json_data = request.GET
+        if json_data.get("act") == "self":
+            resp = get_result()
+            resp.update({"data": OaUserSerializer(request.user).data})
+            return JsonResponse(resp)
+        else:
+            page = CusPagination()
+            return page.cus_query(request, OAUser, OaUserSerializer)
 
     # 增加user
     def post(self, request):
