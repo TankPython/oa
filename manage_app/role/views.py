@@ -14,12 +14,12 @@ class Login(APIView):
     def post(self, request):
         resp = get_result()
         try:
-            json_data = request.POST.dict()
+            json_data = request.data
             password = json_data.get("password")
             name = json_data.get("name")
-            stu = OAUser.objects.filter(name=name).first()
+            user = OAUser.objects.filter(name=name).first()
             # 用户不存在或者密码错误
-            if not stu or not stu.validate_pwd(password):
+            if not user or not user.validate_pwd(password):
                 return JsonResponse(get_result("PasswordOrUsernameError"))
         except Exception as e:
             print(traceback.format_exc())
@@ -27,8 +27,11 @@ class Login(APIView):
 
         # 请求成功
         token = create_token()
-        cache.set(token, stu.id, 6000)
-        resp.update({"token": token})
+        cache.set(token, user.id, 6000)
+        oaUserSer = OaUserSerializer(user)
+        user_data = oaUserSer.data
+        user_data.update({"token": token})
+        resp.update({"data": user_data})
         return JsonResponse(resp)
 
 
@@ -38,7 +41,7 @@ class Register(APIView):
     def post(self, request):
         resp = get_result()
         try:
-            json_data = request.POST.dict()
+            json_data = request.data
             name = json_data.get("name")
             stu = OAUser.objects.filter(name=name).first()
             # 用户已经存在
@@ -68,7 +71,7 @@ class RoleView(APIView):
     def post(self, request):
         resp = get_result()
         try:
-            json_data = request.POST.dict()
+            json_data = request.data
             serialize = OaRoleSerializer(data=json_data)
             if serialize.is_valid():
                 serialize.save()
@@ -99,10 +102,10 @@ class RoleView(APIView):
     def put(self, request):
         resp = get_result()
         try:
-            json_data = request.POST.dict()
+            json_data = request.data
             id = json_data.get("id")
             role = OARole.objects.filter(deleted=False, id=id).first()
-            serialize = OaRoleSerializer(role, data=json_data)
+            serialize = OaRoleSerializer(role, data=json_data, partial=True)
             if serialize.is_valid():
                 serialize.save()
             else:
@@ -126,17 +129,19 @@ class UserView(APIView):
     def post(self, request):
         resp = get_result()
         try:
-            json_data = request.POST.dict()
+            json_data = request.data
             serialize = OaUserSerializer(data=json_data)
             if serialize.is_valid():
                 serialize.save()
             else:
+
                 return JsonResponse(get_result("ParamsError"))
         except Exception as e:
             print(traceback.format_exc())
             return JsonResponse(get_result("ParamsError"))
 
         # 请求成功
+        resp.update({"data": serialize.data})
         return JsonResponse(resp)
 
     def delete(self, request):
@@ -156,13 +161,14 @@ class UserView(APIView):
     def put(self, request):
         resp = get_result()
         try:
-            json_data = request.POST.dict()
+            json_data = request.data
             id = json_data.get("id")
             user = OAUser.objects.filter(deleted=False, id=id).first()
-            serialize = OaUserSerializer(user, data=json_data)
+            serialize = OaUserSerializer(instance=user, data=json_data, partial=True)
             if serialize.is_valid():
                 serialize.save()
             else:
+                print(serialize.errors)
                 return JsonResponse(get_result("ParamsError"))
         except Exception as e:
             print(traceback.format_exc())
@@ -184,6 +190,7 @@ class MenuView(APIView):
             rest_data["id"] = base_ps.id
             rest_data["authName"] = base_ps.name
             rest_data["path"] = base_ps.path
+            rest_data["pid"] = base_ps.pid
             rest_data["children"] = []
             ps_level2_list = OAPermission.objects.filter(deleted=False, pid=base_ps.id)
             for ps_level2 in ps_level2_list:
@@ -191,6 +198,7 @@ class MenuView(APIView):
                     "id": ps_level2.id,
                     "authName": ps_level2.name,
                     "path": ps_level2.path,
+                    "pid": ps_level2.pid,
                 })
             rest_list.append(rest_data)
         resp.update({"data": rest_list})

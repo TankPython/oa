@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,7 +53,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ORIGIN_ALLOW_ALL = True
+APPEND_SLASH = True
 ROOT_URLCONF = 'mysite.urls'
 
 TEMPLATES = [
@@ -82,7 +84,7 @@ DATABASES = {
         'NAME': 'os_system',
         'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
+        'HOST': 'hadoop103',
         'PORT': '3306',
         "init_command": "SET foreign_key_checks = 0;",
     }
@@ -94,14 +96,12 @@ REST_FRAMEWORK = {
     ]
 }
 
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

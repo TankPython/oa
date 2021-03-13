@@ -1,3 +1,4 @@
+INSERT INTO `oa_permission` (`id`, `deleted`, `deleted_at`, `name`, `method`, `pid`, `level`, `path`) VALUES('1','0',NULL,'权限管理','get','0','0','/api/user_manage');
 INSERT INTO `oa_permission` (`id`, `deleted`, `deleted_at`, `name`, `method`, `pid`, `level`, `path`) VALUES('2','0',NULL,'个人事务管理','get','0','0','/api/personal_manage');
 INSERT INTO `oa_permission` (`id`, `deleted`, `deleted_at`, `name`, `method`, `pid`, `level`, `path`) VALUES('3','0',NULL,'公告管理 ','get','0','0','/api/public_manage');
 INSERT INTO `oa_permission` (`id`, `deleted`, `deleted_at`, `name`, `method`, `pid`, `level`, `path`) VALUES('4','0',NULL,'人事管理 ','get','0','0','/api/hr_manage');

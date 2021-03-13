@@ -108,3 +108,5 @@ class CusPermission(BasePermission):
         print("has permission")
         print(request.user.id)
         return True
+
+print(create_md5("123456"))
