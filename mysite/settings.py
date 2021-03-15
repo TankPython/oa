@@ -27,7 +27,7 @@ SECRET_KEY = 'cwq%4&tldjk_fpgav5^pv&_iim+xa80ram!qop=$3v%5@%y!^^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'os_system',
         'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': 'hadoop103',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
         "init_command": "SET foreign_key_checks = 0;",
     }

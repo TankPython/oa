@@ -113,12 +113,12 @@ class CusPermission(BasePermission):
         role_id = request.user.role_id
         if not role_id:
             return False
-        role = OARole.objects.filter(id=role_id).first()
+        role = OARole.objects.filter(deleted=False,id=role_id).first()
         ps_ids = role.ps_ids
         if not ps_ids:
             return False
         ps_ids = ps_ids.split(",")
-        ps = OAPermission.objects.filter(path=path, method=method.lower()).first()
+        ps = OAPermission.objects.filter(deleted=False,path=path, method=method.lower()).first()
         if str(ps.id) not in ps_ids:
             return False
         return True
