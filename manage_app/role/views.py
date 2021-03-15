@@ -19,7 +19,7 @@ class Login(APIView):
             json_data = request.data
             password = json_data.get("password")
             name = json_data.get("name")
-            user = OAUser.objects.filter(name=name).first()
+            user = OAUser.objects.filter(deleted=False, name=name).first()
             # 用户不存在或者密码错误
             if not user or not user.validate_pwd(password):
                 return JsonResponse(get_result("PasswordOrUsernameError"))
@@ -46,10 +46,12 @@ class Register(APIView):
         try:
             json_data = request.data
             name = json_data.get("name")
-            stu = OAUser.objects.filter(name=name).first()
+            stu = OAUser.objects.filter(name=name, deleted=False).first()
             # 用户已经存在
             if stu:
                 return JsonResponse(get_result("UserExits"))
+            if json_data.get("password", ""):
+                json_data["password"] = create_md5(json_data["password"])
             serialize = OaUserSerializer(data=json_data)
             if serialize.is_valid():
                 serialize.save()
@@ -91,7 +93,10 @@ class RoleView(APIView):
         try:
             json_data = request.GET.dict()
             id = json_data.get("id")
-            role = OARole.objects.filter(deleted=False, id=id)
+            role = OARole.objects.filter(deleted=False, id=id).first()
+            if role.name == "admin":
+                return JsonResponse(get_result("NoAuthOperateSuperuser"))
+            # role = OARole.objects.filter(deleted=False, id=id)
             role.delete()
         except Exception as e:
             print(traceback.format_exc())
@@ -103,6 +108,10 @@ class RoleView(APIView):
     # 修改role
     def put(self, request):
         json_data = request.data
+        id = json_data.get("id")
+        role = OARole.objects.filter(deleted=False, id=id).first()
+        if role.name == "admin":
+            return JsonResponse(get_result("NoAuthOperateSuperuser"))
         action = json_data.get("act")
         roleControl = RoleControl(json_data)
         if action == "delete_target_ps_to_role":
@@ -128,9 +137,14 @@ class UserView(APIView):
         resp = get_result()
         try:
             json_data = request.data
+            name = json_data.get("name")
+            user = OAUser.objects.filter(name=name, deleted=False).first()
+            # 用户已经存在
+            if user:
+                return JsonResponse(get_result("UserExits"))
             if json_data.get("password", ""):
                 json_data["password"] = create_md5(json_data["password"])
-            serialize = OaUserSerializer(data=json_data)
+            serialize = OaUserSerializer(data=json_data, partial=True)
             if serialize.is_valid():
                 serialize.save()
             else:
@@ -148,8 +162,10 @@ class UserView(APIView):
         try:
             json_data = request.GET.dict()
             id = json_data.get("id")
-            role = OAUser.objects.filter(deleted=False, id=id)
-            role.delete()
+            user = OAUser.objects.filter(deleted=False, id=id).first()
+            if user.name == "admin":
+                return JsonResponse(get_result("NoAuthOperateSuperuser"))
+            user.delete()
         except Exception as e:
             print(traceback.format_exc())
             return JsonResponse(get_result("ParamsError"))
@@ -161,10 +177,12 @@ class UserView(APIView):
         resp = get_result()
         try:
             json_data = request.data
-            if json_data.get("password", ""):
-                json_data["password"] = create_md5(json_data["password"])
             id = json_data.get("id")
             user = OAUser.objects.filter(deleted=False, id=id).first()
+            if user.name == "admin":
+                return JsonResponse(get_result("NoAuthOperateSuperuser"))
+            if json_data.get("password", ""):
+                json_data["password"] = create_md5(json_data["password"])
             serialize = OaUserSerializer(instance=user, data=json_data, partial=True)
             if serialize.is_valid():
                 serialize.save()
@@ -182,13 +200,18 @@ class UserView(APIView):
 class MenuView(APIView):
     def get(self, request):
         resp = get_result()
+        json_data = request.GET.dict()
+        act = json_data.get("act", "")
+        if act == "right":
+            rest = OAPermission.get_permission(OAPermission.objects.filter(deleted=False))
+            resp.update({"data": rest})
+            return JsonResponse(resp)
         user = request.user
         rest_list = []
         if not user.role_id:
             resp.update({"data": rest_list})
             return JsonResponse(resp)
-
-        role = OARole.objects.get(id=user.role_id)
+        role = OARole.objects.filter(deleted=False, id=user.role_id).first()
         ps_ids = role.ps_ids
         if not ps_ids:
             resp.update({"data": rest_list})
