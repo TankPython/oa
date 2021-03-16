@@ -16,7 +16,7 @@ class OAClient(BaseModel):
 
 class OADepartment(BaseModel):
     dep_name = models.CharField(verbose_name="部门", max_length=20)
-    file_type = models.CharField(verbose_name="职位", max_length=20)
+    position = models.CharField(verbose_name="职位", max_length=20)
 
     class Meta:
         db_table = "oa_department"
@@ -26,6 +26,8 @@ class OADepartment(BaseModel):
 class OAStaff(BaseModel):
     name = models.CharField(verbose_name="名字", max_length=20)
     gender = models.CharField(verbose_name="性别", max_length=20)
+    age = models.IntegerField(verbose_name="年龄")
+    department_id = models.IntegerField(verbose_name="部门id")
 
     class Meta:
         db_table = "oa_staff"

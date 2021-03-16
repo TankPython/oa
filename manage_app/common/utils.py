@@ -10,6 +10,17 @@ import hashlib
 import uuid
 
 
+class BaseModelAction:
+    def __init__(self, model):
+        self.model = model
+
+    def base_query(self):
+        return self.model.objects.filter(deleted=False)
+
+    def query_first(self):
+        return self.model.objects.filter(deleted=False).first()
+
+
 def create_token():
     return str(uuid.uuid1())
 
@@ -21,6 +32,14 @@ def create_md5(str):
 def get_result(data="success"):
     rest = deepcopy(rest_code.get(data))
     return rest
+
+
+def upload_file(file_obj):
+    while True:
+        data = file_obj.read(1024)
+        if not data:
+            break
+        yield data
 
 
 class CusPagination(PageNumberPagination):
@@ -113,12 +132,12 @@ class CusPermission(BasePermission):
         role_id = request.user.role_id
         if not role_id:
             return False
-        role = OARole.objects.filter(deleted=False,id=role_id).first()
+        role = OARole.objects.filter(deleted=False, id=role_id).first()
         ps_ids = role.ps_ids
         if not ps_ids:
             return False
         ps_ids = ps_ids.split(",")
-        ps = OAPermission.objects.filter(deleted=False,path=path, method=method.lower()).first()
+        ps = OAPermission.objects.filter(deleted=False, path=path, method=method.lower()).first()
         if str(ps.id) not in ps_ids:
             return False
         return True
