@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'role.apps.RoleConfig',
+    'hr_manage.apps.HrManageConfig',
     'common'
 ]
 
@@ -85,7 +86,7 @@ DATABASES = {
         'NAME': 'os_system',
         'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
+        'HOST': 'hadoop103',
         'PORT': '3306',
         "init_command": "SET foreign_key_checks = 0;",
     }

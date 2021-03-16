@@ -1,12 +1,14 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from hr_manage import views
+from role import views
 
 urlpatterns = [
-    path('client/', views.Client.as_view()),
-    path('department/', views.Department.as_view()),
-    path('Staff/', views.Staff.as_view()),
-    path('Sign/', views.Sign.as_view()),
+    path('role/', views.RoleView.as_view()),
+    path('user/', views.UserView.as_view()),
+    path('login/', views.Login.as_view()),
+    path('register/', views.Register.as_view()),
+    path('menu/', views.MenuView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
