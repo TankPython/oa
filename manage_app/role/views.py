@@ -198,14 +198,9 @@ class UserView(APIView):
 
 
 class MenuView(APIView):
+    # 获取自己拥有的菜单、权限
     def get(self, request):
         resp = get_result()
-        json_data = request.GET.dict()
-        act = json_data.get("act", "")
-        if act == "right":
-            rest = OAPermission.get_permission(OAPermission.objects.filter(deleted=False))
-            resp.update({"data": rest})
-            return JsonResponse(resp)
         user = request.user
         rest_list = []
         if not user.role_id:
@@ -218,4 +213,13 @@ class MenuView(APIView):
             return JsonResponse(resp)
 
         resp.update({"data": role.get_role_ps()})
+        return JsonResponse(resp)
+
+
+class RightView(APIView):
+    # 获取所有权限
+    def get(self, request):
+        resp = get_result()
+        rest = OAPermission.get_permission(OAPermission.objects.filter(deleted=False))
+        resp.update({"data": rest})
         return JsonResponse(resp)
